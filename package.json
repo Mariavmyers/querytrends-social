@@ -1,5 +1,5 @@
 {
-  "name": "querytrends-social-autopilot",
+  "name": "querytrends-x-ray",
   "version": "1.0.0",
   "description": "Scan a website for AI discoverability problems, turn them into social posts in EN/ES/PT-BR, and schedule them with the Blotato API.",
   "main": "server.js",

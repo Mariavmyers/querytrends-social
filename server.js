@@ -1,4 +1,4 @@
-// QueryTrends Social Autopilot — local web app.
+// QueryTrends X-Ray — local web app.
 // Start it with:  node server.js   then open http://localhost:3000
 const http = require('http');
 const fs = require('fs');
@@ -124,7 +124,7 @@ const server = http.createServer(async (req, res) => {
 if (require.main === module) {
   server.listen(env.PORT, HOST, () => {
     log.info('server.start', { url: `http://localhost:${env.PORT}`, dryRun: blotato.isDryRun() });
-    console.log(`\n  QueryTrends Social Autopilot is running → http://localhost:${env.PORT}`);
+    console.log(`\n  QueryTrends X-Ray is running → http://localhost:${env.PORT}`);
     if (blotato.isDryRun()) console.log('  DRY RUN: no BLOTATO_API_KEY in .env, so nothing will actually post.\n');
   });
 }

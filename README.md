@@ -1,4 +1,4 @@
-# QueryTrends Social Autopilot
+# QueryTrends X-Ray
 
 **Scan a website for AI-discoverability problems, turn the findings into scroll-stopping social posts in English, Spanish and Brazilian Portuguese, and schedule them with the [Blotato API](https://www.blotato.com).**
 
