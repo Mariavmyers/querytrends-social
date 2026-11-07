@@ -1,0 +1,52 @@
+{
+  "name": "QueryTrends Social Autopilot — weekly",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [1],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "a1f0c6c2-1b11-4c55-9a8e-000000000001",
+      "name": "Every Monday 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/run",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-run-token", "value": "PASTE_YOUR_RUN_TOKEN" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"example.com\",\n  \"langs\": [\"en\", \"es\", \"pt\"],\n  \"accountId\": \"PASTE_ACCOUNT_ID\",\n  \"platform\": \"facebook\",\n  \"pageId\": \"PASTE_PAGE_ID\",\n  \"max\": 2,\n  \"spacingHours\": 24,\n  \"startTime\": \"{{ $now.plus({ hours: 1 }).toISO() }}\"\n}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "a1f0c6c2-1b11-4c55-9a8e-000000000002",
+      "name": "Scan + write + schedule",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    }
+  ],
+  "connections": {
+    "Every Monday 8am": {
+      "main": [[{ "node": "Scan + write + schedule", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

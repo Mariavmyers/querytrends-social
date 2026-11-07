@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QueryTrends Social Autopilot</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --panel: #ffffff; --ink: #1c1b19; --muted: #6b675f; --line: #e3dfd5;
+    --accent: #0f6e5c; --accent-ink: #ffffff; --high: #b42318; --medium: #b54708; --low: #475467; --ok: #067647;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121211; --panel: #1b1b19; --ink: #f1efe9; --muted: #a29d93; --line: #2e2d2a; --accent: #3fb59c; --accent-ink: #0c1f1b; --high: #f97066; --medium: #fdb022; --low: #98a2b3; --ok: #47cd89; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px 80px; }
+  header h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header p { margin: 0 0 8px; color: var(--muted); }
+  .mode { display: inline-block; font: 12px var(--mono); padding: 3px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+  .mode.live { color: var(--ok); border-color: var(--ok); }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-top: 20px; }
+  section h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 14px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  input[type=text], input[type=datetime-local], select, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  input[type=text] { flex: 1 1 260px; min-width: 0; }
+  textarea { width: 100%; min-height: 220px; resize: vertical; font-size: 14px; }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 10px 16px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  button:disabled { opacity: .5; cursor: wait; }
+  label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; color: var(--muted); }
+  .score { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .score b { font-size: 44px; line-height: 1; }
+  .finding { border-left: 3px solid var(--low); padding: 6px 0 6px 12px; margin: 10px 0; }
+  .finding.high { border-color: var(--high); } .finding.medium { border-color: var(--medium); }
+  .finding strong { display: block; }
+  .finding small { color: var(--muted); display: block; }
+  .tag { font: 11px var(--mono); text-transform: uppercase; }
+  .tag.high { color: var(--high); } .tag.medium { color: var(--medium); } .tag.low { color: var(--low); }
+  ul.passed { margin: 8px 0 0; padding-left: 18px; color: var(--ok); font-size: 14px; }
+  .post { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 14px 0; }
+  .post .meta { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font: 12px var(--mono); color: var(--muted); margin-bottom: 8px; }
+  .post .comment { font-size: 13px; color: var(--muted); margin: 6px 0 10px; }
+  .msg { font-size: 14px; margin-top: 8px; }
+  .msg.err { color: var(--high); } .msg.ok { color: var(--ok); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>QueryTrends Social Autopilot</h1>
+    <p>Scan a website for AI discoverability problems → turn them into posts → schedule them with Blotato.</p>
+    <span id="mode" class="mode">checking…</span>
+  </header>
+
+  <section>
+    <h2>1 · Scan a website</h2>
+    <form id="scanForm" class="row">
+      <input id="url" type="text" placeholder="example.com" autocomplete="off" required />
+      <button id="scanBtn" type="submit">Scan</button>
+    </form>
+    <div id="scanMsg" class="msg"></div>
+    <div id="results" class="hidden"></div>
+  </section>
+
+  <section id="scheduleSection" class="hidden">
+    <h2>2 · Where to post</h2>
+    <div class="row">
+      <select id="account"><option value="">Loading accounts…</option></select>
+      <select id="page" class="hidden"></select>
+    </div>
+    <div class="msg" style="color:var(--muted)">Each post has its own date and time. Leave the time empty to post immediately.</div>
+    <div id="accountMsg" class="msg"></div>
+  </section>
+
+  <section id="postsSection" class="hidden">
+    <h2>3 · Write the posts</h2>
+    <div class="row">
+      <label class="chk"><input type="checkbox" name="lang" value="en" checked /> English</label>
+      <label class="chk"><input type="checkbox" name="lang" value="es" /> Español</label>
+      <label class="chk"><input type="checkbox" name="lang" value="pt" /> Português (BR)</label>
+      <label class="chk" id="polishWrap"><input type="checkbox" id="polish" /> Polish with Claude</label>
+      <button id="writeBtn" type="button">Write posts</button>
+    </div>
+    <div id="postsMsg" class="msg"></div>
+    <div id="posts"></div>
+  </section>
+
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let scanResult = null;
+let accounts = [];
+
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {});
+  const data = await res.json().catch(() => ({ error: `Unexpected response (${res.status}).` }));
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  return data;
+}
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v);
+  }
+  kids.flat().forEach((k) => k != null && n.append(k));
+  return n;
+}
+function say(id, text, kind = '') { const m = $(id); m.textContent = text; m.className = 'msg ' + kind; }
+function busy(btn, on, label) { btn.disabled = on; if (label) btn.textContent = label; }
+
+// Default schedule: tomorrow 9:00 local, then one per day.
+function slot(i) {
+  const d = new Date(); d.setDate(d.getDate() + 1 + i); d.setHours(9, 0, 0, 0);
+  const pad = (x) => String(x).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+api('/api/health').then((h) => {
+  $('mode').textContent = h.dryRun ? 'DRY RUN — add your Blotato key to post for real' : 'LIVE — connected to Blotato';
+  if (!h.dryRun) $('mode').classList.add('live');
+  if (!h.polishAvailable) { $('polish').disabled = true; $('polishWrap').title = 'Add ANTHROPIC_API_KEY to .env to enable'; $('polishWrap').style.opacity = .5; }
+}).catch(() => { $('mode').textContent = 'server not reachable'; });
+
+$('scanForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  busy($('scanBtn'), true, 'Scanning…'); say('scanMsg', 'Checking the site… (about 10–20 seconds)');
+  $('results').classList.add('hidden'); $('postsSection').classList.add('hidden'); $('posts').replaceChildren();
+  try {
+    scanResult = await api('/api/scan', { url: $('url').value });
+    renderResults(scanResult); say('scanMsg', '');
+    $('postsSection').classList.remove('hidden');
+    $('scheduleSection').classList.remove('hidden');
+    if (!accounts.length) loadAccounts();
+    if (!scanResult.findings.length) say('postsMsg', 'No problems found — nothing to post about. Nice site!', 'ok');
+  } catch (err) { say('scanMsg', err.message, 'err'); }
+  busy($('scanBtn'), false, 'Scan');
+});
+
+function renderResults(r) {
+  const box = $('results'); box.replaceChildren(); box.classList.remove('hidden');
+  box.append(el('div', { class: 'score' }, el('b', { text: String(r.score) }), el('span', { text: `/100 · ${r.findings.length} problem(s) on ${r.brand}` })));
+  r.findings.forEach((f) => box.append(el('div', { class: `finding ${f.severity}` },
+    el('span', { class: `tag ${f.severity}`, text: f.severity }), el('strong', { text: f.title }),
+    el('small', { text: `Why: ${f.why}` }), el('small', { text: `Fix: ${f.fix}` }))));
+  if (r.passed.length) box.append(el('ul', { class: 'passed' }, r.passed.map((p) => el('li', { text: `✓ ${p}` }))));
+  if (r.notChecked.length) box.append(el('small', { style: 'color:var(--muted)', text: `Not checked: ${r.notChecked.join(', ')}` }));
+}
+
+$('writeBtn').addEventListener('click', async () => {
+  const langs = [...document.querySelectorAll('input[name=lang]:checked')].map((c) => c.value);
+  if (!langs.length) return say('postsMsg', 'Pick at least one language.', 'err');
+  busy($('writeBtn'), true, 'Writing…'); say('postsMsg', '');
+  try {
+    const { posts } = await api('/api/posts', { result: scanResult, langs, polish: $('polish').checked });
+    renderPosts(posts);
+  } catch (err) { say('postsMsg', err.message, 'err'); }
+  busy($('writeBtn'), false, 'Write posts');
+});
+
+function renderPosts(posts) {
+  const box = $('posts'); box.replaceChildren();
+  posts.forEach((p, i) => {
+    const text = el('textarea'); text.value = p.text;
+    const when = el('input', { type: 'datetime-local' }); when.value = slot(i);
+    const btn = el('button', { type: 'button', text: 'Schedule this post' });
+    const msg = el('div', { class: 'msg' });
+    btn.addEventListener('click', () => schedule(p, text, when, btn, msg));
+    box.append(el('div', { class: 'post' },
+      el('div', { class: 'meta' }, el('span', { text: `${p.lang.toUpperCase()} · ${p.kind}${p.polished ? ' · polished' : ''}` }), el('span', { text: `${text.value.length} characters` })),
+      text, el('div', { class: 'comment', text: `First comment (Facebook) / last line (LinkedIn): ${p.firstComment}` }),
+      el('div', { class: 'row' }, when, btn), msg));
+  });
+}
+
+async function loadAccounts() {
+  try {
+    const data = await api('/api/accounts');
+    accounts = data.accounts;
+    const sel = $('account'); sel.replaceChildren(el('option', { value: '', text: accounts.length ? 'Choose an account' : 'No supported accounts — connect them at my.blotato.com' }));
+    accounts.forEach((a) => sel.append(el('option', { value: a.id, text: `${a.platform} · ${a.name}` })));
+  } catch (err) { say('accountMsg', err.message, 'err'); }
+}
+
+$('account').addEventListener('change', async () => {
+  const acc = accounts.find((a) => a.id === $('account').value);
+  const page = $('page'); page.classList.add('hidden'); page.replaceChildren(); say('accountMsg', '');
+  if (!acc || !['facebook', 'linkedin'].includes(acc.platform)) return;
+  try {
+    const { pages } = await api(`/api/accounts/${encodeURIComponent(acc.id)}/pages`);
+    page.append(el('option', { value: '', text: acc.platform === 'facebook' ? 'Choose a Facebook Page (required)' : 'Personal profile (or choose a Company Page)' }));
+    pages.forEach((p) => page.append(el('option', { value: p.id, text: p.name })));
+    page.classList.remove('hidden');
+  } catch (err) { say('accountMsg', err.message, 'err'); }
+});
+
+async function schedule(post, textEl, whenEl, btn, msg) {
+  const acc = accounts.find((a) => a.id === $('account').value);
+  if (!acc) { msg.textContent = 'Choose an account in step 2 first.'; msg.className = 'msg err'; return; }
+  busy(btn, true, 'Sending…');
+  try {
+    const edited = { ...post, text: textEl.value, shortText: textEl.value === post.text ? post.shortText : textEl.value.slice(0, 280) };
+    const r = await api('/api/schedule', {
+      accountId: acc.id, platform: acc.platform, pageId: $('page').value || undefined,
+      post: edited, scheduledTime: whenEl.value ? new Date(whenEl.value).toISOString() : undefined,
+    });
+    msg.textContent = r.dryRun ? `Dry run OK — this is what would be sent (see logs/app.log). ID ${r.postSubmissionId}` : `Scheduled ✓ ${r.scheduledTime ? new Date(r.scheduledTime).toLocaleString() : 'publishing now'} · ID ${r.postSubmissionId}`;
+    msg.className = 'msg ok'; btn.textContent = 'Scheduled ✓';
+  } catch (err) { msg.textContent = err.message; msg.className = 'msg err'; busy(btn, false, 'Schedule this post'); }
+}
+</script>
+</body>
+</html>

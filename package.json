@@ -1,0 +1,15 @@
+{
+  "name": "querytrends-social-autopilot",
+  "version": "1.0.0",
+  "description": "Scan a website for AI discoverability problems, turn them into social posts in EN/ES/PT-BR, and schedule them with the Blotato API.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "author": "Maria Myers (MainEntry LLC)",
+  "license": "MIT"
+}

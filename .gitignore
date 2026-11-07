@@ -1,0 +1,11 @@
+# Private keys — never upload
+.env
+.env.*
+!.env.example
+
+# Logs can contain post text and account IDs
+logs/
+*.log
+
+node_modules/
+.DS_Store
