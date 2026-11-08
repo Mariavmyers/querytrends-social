@@ -23,6 +23,18 @@ Spend less on ads by starting from structures that already work:
 4. **Write 3 versions**: A copies the winner's hook; B and C test new hooks. Each gets an ad score (hook fits before "See more," link, call to action, length).
 5. **Test free, pay for the winner**: schedule each version as an organic post through Blotato, compare results in Blotato Analytics, then put ad money only behind the winner.
 
+## AdSuperXR · Real Estate (open `/superxr.html`)
+
+Find the needing, present them to the willing:
+
+1. **Find the need:** one-click searches (Facebook, Reddit, Google, Craigslist "housing wanted", F5Bot alerts) in English, Spanish and Portuguese, plus reply templates. You read and reply yourself; nothing is scraped.
+2. **Log the need:** area, budget, bedrooms, timeline and a link to the public post. No phone numbers or emails are stored.
+3. **The willing:** paste your client's property list.
+4. **Match and present:** each need is scored against each property (area, budget, size, timeline, financing). The client report (save as PDF) shows buyers **anonymously** until the buyer agrees to an introduction, which protects the buyer's privacy and the bridge's fee.
+5. **Ads:** AdXR's real-estate preset plus a fair-housing wording check (Meta's housing Special Ad Category).
+
+All buyer data stays on the local computer in `data/` and is git-ignored.
+
 ## Run it (5 minutes)
 
 Requires [Node.js 18+](https://nodejs.org). No packages to install.

@@ -9,3 +9,6 @@ logs/
 
 node_modules/
 .DS_Store
+
+# AdSuperXR buyer data (personal info) never leaves this computer
+data/

@@ -1,0 +1,5 @@
+Timestamp,Your name,Phone,Email,Preferred language (English / Español / Português),Areas or cities you want (e.g. Liberty / Kearney / Northland),Maximum budget ($),Minimum bedrooms,Minimum bathrooms,When do you want to buy? (Now / 1–3 months / 3–6 months / Just looking),How will you pay? (Cash / Pre-approved loan / Need help with a loan / Not sure),I agree to be contacted
+11/08/2026 10:02,Sample Buyer One,555-0101,buyer1@example.com,English,"Liberty, Kearney",$280k,3,2,Now,Pre-approved loan,I agree to be contacted
+11/08/2026 10:15,Comprador Ejemplo,555-0102,comprador@example.com,Español,Liberty,250000,3,1,1–3 months,Cash,I agree to be contacted
+11/08/2026 11:40,Comprador Exemplo,555-0103,comprador.pt@example.com,Português,Northland,320000,4,2,3–6 months,Need help with a loan,I agree to be contacted
+11/08/2026 12:00,No Consent Person,555-0104,noconsent@example.com,English,Liberty,300000,3,2,Now,Cash,

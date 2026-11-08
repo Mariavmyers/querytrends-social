@@ -96,3 +96,33 @@ test('AdXR: skips a language whose target fields are empty', async () => {
   assert.ok(ads.length > 0 && ads.every((a) => a.lang === 'en'));
   assert.deepStrictEqual(skipped.map((s) => s.lang), ['es']);
 });
+
+test('AdSuperXR: a found need is matched anonymously until the person agrees', () => {
+  const fs = require('fs');
+  const s = require('../lib/superxr');
+  const backup = fs.existsSync(s.DATA_FILE) ? fs.readFileSync(s.DATA_FILE) : null;
+  try {
+    s.clearData();
+    s.importProperties('Address,Area,Price,Beds,Baths\nTest Home,Liberty,265000,3,2\nBig Home,Kearney,410000,5,3');
+    const n = s.addNeed({ platform: 'Reddit', areas: 'Liberty', budget: '275k', beds: '3', timeline: 'Now' });
+    let m = s.matchAll({ minScore: 60 });
+    assert.strictEqual(m.results[0].buyers.length, 1);
+    assert.strictEqual(m.results[0].buyers[0].shareable, false, 'anonymous before agreement');
+    assert.strictEqual(m.results[1].buyers.length, 0, 'over budget is not a match');
+    s.setStatus(n.id, 'interested');
+    assert.strictEqual(s.matchAll({ minScore: 60 }).results[0].buyers[0].shareable, true);
+    s.setStatus(n.id, 'not interested');
+    assert.strictEqual(s.matchAll({ minScore: 60 }).results[0].buyers.length, 0, 'removed after a no');
+    assert.ok(!('phone' in n) && !('email' in n), 'no contact details stored for found needs');
+  } finally {
+    if (backup) fs.writeFileSync(s.DATA_FILE, backup); else s.clearData();
+  }
+});
+
+test('AdSuperXR: fair-housing wording check in 3 languages', () => {
+  const s = require('../lib/superxr');
+  assert.ok(s.fairHousingCheck('Perfect for families!').length);
+  assert.ok(s.fairHousingCheck('Ideal para familias').length);
+  assert.ok(s.fairHousingCheck('Ideal para famílias').length);
+  assert.strictEqual(s.fairHousingCheck('3 bedrooms, big yard, near the park.').length, 0);
+});

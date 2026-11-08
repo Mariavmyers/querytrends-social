@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AdSuperXR · Real Estate</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --panel: #ffffff; --ink: #1c1b19; --muted: #6b675f; --line: #e3dfd5;
+    --accent: #0f6e5c; --accent-ink: #ffffff; --gold: #a8790f; --bad: #b42318; --ok: #067647;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121211; --panel: #1b1b19; --ink: #f1efe9; --muted: #a29d93; --line: #2e2d2a; --accent: #3fb59c; --accent-ink: #0c1f1b; --gold: #e0b34a; --bad: #f97066; --ok: #47cd89; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 28px 16px 80px; }
+  nav { font-size: 14px; margin-bottom: 14px; display: flex; gap: 14px; flex-wrap: wrap; }
+  nav a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  h1 { font-size: 30px; margin: 0 0 4px; }
+  h1 span { color: var(--gold); }
+  .sub { color: var(--muted); margin: 0; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-top: 18px; }
+  section h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 6px; }
+  .hint { font-size: 13.5px; color: var(--muted); margin: 0 0 12px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  input, select, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+  textarea { width: 100%; min-height: 110px; resize: vertical; font: 13px var(--mono); }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 15px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  button.small { padding: 4px 10px; font-size: 13px; }
+  button.danger { background: transparent; color: var(--bad); border: 1px solid var(--line); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .grid label { font-size: 12.5px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+  .grid label.wide { grid-column: 1 / -1; }
+  .grid input, .grid select { width: 100%; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .tablewrap { overflow-x: auto; }
+  .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; font-size: 14px; }
+  .links div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+  .links a { color: var(--accent); font-weight: 600; text-decoration: none; margin-right: 10px; }
+  .reply { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin: 8px 0; font-size: 14px; }
+  .reply b { font: 12px var(--mono); color: var(--muted); }
+  .match { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .match h3 { margin: 0 0 4px; font-size: 17px; }
+  .buyer { display: grid; grid-template-columns: 60px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .score { font: 700 18px var(--mono); }
+  .score.good { color: var(--ok); } .score.mid { color: var(--gold); }
+  .tag { font: 11px var(--mono); padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); margin-left: 6px; }
+  .tag.shared { color: var(--ok); border-color: var(--ok); }
+  .muted { color: var(--muted); }
+  .msg { font-size: 14px; margin-top: 8px; }
+  .msg.err { color: var(--bad); } .msg.ok { color: var(--ok); }
+  .flag { background: color-mix(in srgb, var(--gold) 12%, transparent); border-left: 3px solid var(--gold); padding: 10px 12px; border-radius: 0 10px 10px 0; font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <nav><a href="/">← QueryTrends X-Ray</a><a href="/adxr.html?preset=realestate">AdXR ads →</a></nav>
+  <h1>Ad<span>SuperXR</span> · Real Estate</h1>
+  <p class="sub">Find the needing → present them to the willing. Buyer details stay private until the buyer agrees to an introduction.</p>
+
+  <section>
+    <h2>1 · Find the need</h2>
+    <p class="hint">Search where people post that they're looking. You read and reply yourself; nothing is copied automatically.</p>
+    <div class="row"><input id="city" value="Kansas City" style="flex:1 1 240px" /><button id="listenBtn" class="ghost" type="button">Show searches</button></div>
+    <div id="listen" class="links" style="margin-top:12px"></div>
+    <div id="extra" class="msg"></div>
+    <div id="replies"></div>
+    <p class="flag" style="margin-top:12px"><b>Group rules first:</b> many Facebook groups ban sales replies. Reply only where it's allowed, be helpful, and never post someone's details anywhere.</p>
+  </section>
+
+  <section>
+    <h2>2 · Log a need you found</h2>
+    <p class="hint">Write down what the person publicly asked for. Don't save phone numbers or emails here.</p>
+    <div class="grid">
+      <label>Platform<select id="n_platform"><option>Facebook group</option><option>Reddit</option><option>Craigslist</option><option>Nextdoor</option><option>Instagram</option><option>TikTok</option><option>Other</option></select></label>
+      <label>Public username (optional)<input id="n_handle" placeholder="u/example" /></label>
+      <label class="wide">Link to the post<input id="n_link" placeholder="https://…" /></label>
+      <label>Area(s) wanted<input id="n_areas" placeholder="Liberty, Kearney" /></label>
+      <label>Max budget<input id="n_budget" placeholder="280k" /></label>
+      <label>Min bedrooms<input id="n_beds" placeholder="3" /></label>
+      <label>Min bathrooms<input id="n_baths" placeholder="2" /></label>
+      <label>When<select id="n_timeline"><option>Now</option><option>1–3 months</option><option>3–6 months</option><option>Just looking</option><option value="">Not said</option></select></label>
+      <label>Paying with<select id="n_financing"><option value="">Not said</option><option>Cash</option><option>Pre-approved loan</option><option>Need help with a loan</option></select></label>
+      <label>Language<select id="n_language"><option>English</option><option>Español</option><option>Português</option></select></label>
+      <label class="wide">What they said (short summary)<input id="n_note" placeholder="Wants a yard, close to schools" /></label>
+    </div>
+    <div class="row" style="margin-top:12px"><button id="addNeedBtn" type="button">Add need</button></div>
+    <div id="needMsg" class="msg"></div>
+    <div class="tablewrap" style="margin-top:12px"><table id="needs"></table></div>
+  </section>
+
+  <section>
+    <h2>3 · The willing: your client's properties</h2>
+    <p class="hint">Paste a list (from Excel or Google Sheets: Address, Area, Price, Beds, Baths, Type, Link).</p>
+    <textarea id="propsCsv" placeholder="Address,Area,Price,Beds,Baths,Type,Link&#10;123 Main St,Liberty,265000,3,2,Single-family,https://…"></textarea>
+    <div class="row" style="margin-top:10px"><button id="importProps" type="button">Add properties</button></div>
+    <div id="propMsg" class="msg"></div>
+    <div class="tablewrap" style="margin-top:12px"><table id="props"></table></div>
+  </section>
+
+  <section>
+    <h2>4 · Matches → present to your client</h2>
+    <div class="row"><label class="muted">Minimum match <select id="minScore"><option value="80">80%</option><option value="60" selected>60%</option><option value="40">40%</option></select></label>
+      <button id="matchBtn" type="button">Find matches</button>
+      <button id="reportBtn" class="ghost" type="button">Client report (save as PDF)</button></div>
+    <div id="matchMsg" class="msg"></div>
+    <div id="matches"></div>
+  </section>
+
+  <section>
+    <h2>5 · Reach more people: ads</h2>
+    <p class="hint">Housing ads on Facebook and Instagram are a <b>Special Ad Category</b>: no targeting by age, gender or ZIP code. Describe the home, never who it's "for."</p>
+    <textarea id="adCheck" placeholder="Paste an ad to check the wording…" style="font:14px system-ui"></textarea>
+    <div class="row" style="margin-top:10px"><button id="checkBtn" class="ghost" type="button">Check fair-housing wording</button><a href="/adxr.html?preset=realestate" style="color:var(--accent);font-weight:600">Write ads in AdXR →</a></div>
+    <div id="checkMsg" class="msg"></div>
+  </section>
+
+  <section>
+    <h2>Privacy</h2>
+    <p class="hint">Everything here is saved only on this computer (data/superxr.json) and never uploaded to GitHub.</p>
+    <button id="clearBtn" class="danger" type="button">Delete all needs and properties</button>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let STATUSES = [], REPLIES = {}, lastMatch = null;
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {});
+  const data = await res.json().catch(() => ({ error: 'Unexpected response (' + res.status + ').' }));
+  if (!res.ok) throw new Error(data.error || 'Error ' + res.status);
+  return data;
+}
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v); }
+  kids.flat().forEach((k) => k != null && n.append(k));
+  return n;
+}
+function say(id, text, kind = '') { $(id).textContent = text; $(id).className = 'msg ' + kind; }
+const money = (n) => n == null ? '—' : '$' + Number(n).toLocaleString('en-US');
+const titleCase = (a) => a.replace(/\b\p{L}/gu, (c) => c.toUpperCase());
+const need = (l) => [l.areas.length ? l.areas.map(titleCase).join(', ') : 'any area', l.budget != null ? '≤ ' + money(l.budget) : null, l.beds != null ? l.beds + '+ bd' : null, l.baths != null ? l.baths + '+ ba' : null, l.timeline || null].filter(Boolean).join(' · ');
+
+// ---- 1. Find the need ----
+$('listenBtn').addEventListener('click', async () => {
+  const r = await api('/api/superxr/listen', { city: $('city').value });
+  const flags = { en: '🇺🇸', es: '🇪🇸', pt: '🇧🇷' };
+  $('listen').replaceChildren(...r.searches.map((s) => el('div', {},
+    el('div', { class: 'muted', text: flags[s.lang] + ' "' + s.keyword + '"' }),
+    el('a', { href: s.facebook, target: '_blank', rel: 'noopener', text: 'Facebook' }),
+    el('a', { href: s.reddit, target: '_blank', rel: 'noopener', text: 'Reddit' }),
+    el('a', { href: s.google, target: '_blank', rel: 'noopener', text: 'Google (this week)' }))));
+  $('extra').replaceChildren(
+    el('a', { href: r.craigslistHousingWanted, target: '_blank', rel: 'noopener', style: 'color:var(--accent);font-weight:600', text: 'Craigslist "housing wanted" ↗' }), ' · ',
+    el('a', { href: r.f5bot, target: '_blank', rel: 'noopener', style: 'color:var(--accent);font-weight:600', text: 'F5Bot: free email alerts for new Reddit posts ↗' }));
+  const area = $('city').value || 'your area';
+  $('replies').replaceChildren(el('h3', { style: 'font-size:15px;margin:16px 0 4px', text: 'Reply templates (copy and personalize)' }),
+    ...Object.entries(REPLIES).map(([lang, t]) => {
+      const text = t.replace('{area}', area);
+      const b = el('button', { class: 'small ghost', type: 'button', text: 'Copy' });
+      b.addEventListener('click', () => navigator.clipboard.writeText(text).then(() => { b.textContent = 'Copied ✓'; }).catch(() => {}));
+      return el('div', { class: 'reply' }, el('b', { text: flags[lang] + ' ' }), text, ' ', b);
+    }));
+});
+
+// ---- 2. Needs ----
+$('addNeedBtn').addEventListener('click', async () => {
+  const f = (k) => $('n_' + k).value;
+  try {
+    await api('/api/superxr/need', { platform: f('platform'), handle: f('handle'), link: f('link'), areas: f('areas'), budget: f('budget'), beds: f('beds'), baths: f('baths'), timeline: f('timeline'), financing: f('financing'), language: f('language'), note: f('note') });
+    ['handle', 'link', 'areas', 'budget', 'beds', 'baths', 'note'].forEach((k) => { $('n_' + k).value = ''; });
+    say('needMsg', 'Need added ✓', 'ok'); refresh();
+  } catch (e) { say('needMsg', e.message, 'err'); }
+});
+
+async function refresh() {
+  const d = await api('/api/superxr/data');
+  const needs = d.leads;
+  $('needs').replaceChildren(el('tr', {}, ['Need', 'Where found', 'Status', ''].map((h) => el('th', { text: h }))),
+    ...needs.map((l) => {
+      const sel = el('select', {}); STATUSES.forEach((s) => { const o = el('option', { value: s, text: s }); if (s === (l.status || (l.consent ? 'interested' : 'found'))) o.selected = true; sel.append(o); });
+      sel.addEventListener('change', async () => { await api('/api/superxr/status', { id: l.id, status: sel.value }); refresh(); });
+      const del = el('button', { class: 'small danger', type: 'button', text: 'Delete' });
+      del.addEventListener('click', async () => { await api('/api/superxr/delete', { kind: 'lead', id: l.id }); refresh(); });
+      const where = l.link ? el('a', { href: l.link, target: '_blank', rel: 'noopener', style: 'color:var(--accent)', text: (l.platform || 'post') + (l.handle ? ' · ' + l.handle : '') }) : (l.platform || 'form');
+      return el('tr', {}, el('td', {}, need(l), l.note ? el('div', { class: 'muted', text: l.note }) : null), el('td', {}, where), el('td', {}, sel), el('td', {}, del));
+    }));
+  if (!needs.length) $('needs').append(el('tr', {}, el('td', { class: 'muted', text: 'No needs logged yet.' })));
+  $('props').replaceChildren(el('tr', {}, ['Property', 'Area', 'Price', 'Bd/Ba', ''].map((h) => el('th', { text: h }))),
+    ...d.properties.map((p) => {
+      const del = el('button', { class: 'small danger', type: 'button', text: 'Delete' });
+      del.addEventListener('click', async () => { await api('/api/superxr/delete', { kind: 'property', id: p.id }); refresh(); });
+      return el('tr', {}, el('td', { text: p.label }), el('td', { text: p.area }), el('td', { text: money(p.price) }), el('td', { text: (p.beds ?? '—') + ' / ' + (p.baths ?? '—') }), el('td', {}, del));
+    }));
+}
+
+// ---- 3. Properties ----
+$('importProps').addEventListener('click', async () => {
+  try { const r = await api('/api/superxr/properties', { csv: $('propsCsv').value }); say('propMsg', r.added + ' properties added ✓', 'ok'); $('propsCsv').value = ''; refresh(); }
+  catch (e) { say('propMsg', e.message, 'err'); }
+});
+
+// ---- 4. Matches ----
+$('matchBtn').addEventListener('click', async () => {
+  lastMatch = await api('/api/superxr/match', { minScore: Number($('minScore').value) });
+  const box = $('matches'); box.replaceChildren();
+  let total = 0;
+  lastMatch.results.forEach((r) => {
+    total += r.buyers.length;
+    box.append(el('div', { class: 'match' },
+      el('h3', { text: r.property.label }),
+      el('div', { class: 'muted', text: [r.property.area, money(r.property.price), (r.property.beds ?? '—') + ' bd / ' + (r.property.baths ?? '—') + ' ba'].join(' · ') }),
+      r.buyers.length ? r.buyers.map((b) => el('div', { class: 'buyer' },
+        el('div', { class: 'score ' + (b.score >= 80 ? 'good' : 'mid'), text: b.score + '%' }),
+        el('div', {}, el('b', { text: need(b.lead) }), el('span', { class: 'tag' + (b.shareable ? ' shared' : ''), text: b.shareable ? 'agreed to intro' : (b.lead.status || 'found') }),
+          el('div', { class: 'muted', text: '✓ ' + b.reasons.join(' · ') }),
+          b.misses.length ? el('div', { class: 'muted', text: '✗ ' + b.misses.join(' · ') }) : null))) : el('div', { class: 'muted', text: 'No matches at this level yet.' })));
+  });
+  say('matchMsg', total + ' match(es) found.' + (lastMatch.excludedNoConsent ? ' ' + lastMatch.excludedNoConsent + ' left out (said no).' : ''), 'ok');
+});
+
+// Client report: anonymous until the buyer agrees to an introduction.
+$('reportBtn').addEventListener('click', () => {
+  if (!lastMatch) { say('matchMsg', 'Click "Find matches" first.', 'err'); return; }
+  const w = window.open('', '_blank');
+  const d = w.document;
+  d.title = 'Buyer matches report';
+  const style = d.createElement('style');
+  style.textContent = 'body{font:14px/1.5 system-ui,sans-serif;color:#111;margin:32px;max-width:760px}h1{font-size:22px;margin:0}h2{font-size:16px;margin:22px 0 6px;border-bottom:1px solid #ccc;padding-bottom:4px}.b{padding:6px 0;border-bottom:1px solid #eee}.s{font-weight:700;color:#0f6e5c}.m{color:#666;font-size:12.5px}';
+  d.head.append(style);
+  const h = (tag, text, cls) => { const n = d.createElement(tag); n.textContent = text; if (cls) n.className = cls; return n; };
+  d.body.append(h('h1', 'Buyer matches for your properties'), h('p', 'Prepared ' + new Date().toLocaleDateString() + ' by MainEntry LLC · AdSuperXR', 'm'),
+    h('p', 'Buyers are shown anonymously. Contact details are shared only after the buyer agrees to an introduction.', 'm'));
+  lastMatch.results.forEach((r) => {
+    d.body.append(h('h2', r.property.label + ' — ' + [r.property.area, money(r.property.price)].join(' · ')));
+    if (!r.buyers.length) d.body.append(h('div', 'No matching buyers yet.', 'm'));
+    r.buyers.forEach((b, i) => {
+      const row = d.createElement('div'); row.className = 'b';
+      row.append(h('span', b.score + '% ', 's'), h('span', 'Buyer ' + (i + 1) + ': ' + need(b.lead)));
+      row.append(h('div', b.reasons.join(' · '), 'm'));
+      row.append(h('div', b.shareable ? 'Agreed to an introduction ✓' : 'Introduction available on request', 'm'));
+      d.body.append(row);
+    });
+  });
+  setTimeout(() => w.print(), 300);
+});
+
+// ---- 5. Ad check ----
+$('checkBtn').addEventListener('click', async () => {
+  const r = await api('/api/superxr/check-ad', { text: $('adCheck').value });
+  say('checkMsg', r.issues.length ? '⚠️ ' + r.issues.join(' · ') : 'No fair-housing wording problems found ✓', r.issues.length ? 'err' : 'ok');
+});
+
+$('clearBtn').addEventListener('click', async () => {
+  if ($('clearBtn').dataset.sure !== '1') { $('clearBtn').dataset.sure = '1'; $('clearBtn').textContent = 'Click again to delete everything'; return; }
+  await api('/api/superxr/delete', { all: true }); $('clearBtn').dataset.sure = ''; $('clearBtn').textContent = 'Delete all needs and properties'; refresh();
+});
+
+api('/api/superxr/template').then((t) => { STATUSES = t.statuses; REPLIES = t.replies; refresh(); })
+  .catch(() => say('needMsg', 'Server not reachable. Is the black window running?', 'err'));
+</script>
+</body>
+</html>

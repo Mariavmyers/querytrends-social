@@ -10,6 +10,7 @@ const { scan } = require('./lib/scanner');
 const { generatePosts } = require('./lib/posts');
 const blotato = require('./lib/blotato');
 const adxr = require('./lib/adxr');
+const superxr = require('./lib/superxr');
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const HOST = process.env.HOST || '127.0.0.1';
@@ -93,6 +94,26 @@ const server = http.createServer(async (req, res) => {
       const { result, langs, max, polish, link, combine } = await readBody(req);
       if (!result || !Array.isArray(result.findings)) throw Object.assign(new Error('Run a scan first.'), { status: 400 });
       return send(res, 200, { posts: await generatePosts(result, { langs, max, polish, link, combine }) });
+    }
+    // ---- AdSuperXR (real estate) ----
+    if (req.method === 'GET' && pathname === '/api/superxr/template') {
+      return send(res, 200, { template: superxr.TEMPLATE, replies: superxr.REPLY_TEMPLATES, statuses: superxr.STATUSES });
+    }
+    if (req.method === 'POST' && pathname === '/api/superxr/listen') {
+      const { city } = await readBody(req);
+      return send(res, 200, superxr.listenLinks(city));
+    }
+    if (req.method === 'GET' && pathname === '/api/superxr/data') return send(res, 200, superxr.getData());
+    if (req.method === 'POST' && pathname === '/api/superxr/leads') return send(res, 200, superxr.importLeads((await readBody(req)).csv));
+    if (req.method === 'POST' && pathname === '/api/superxr/properties') return send(res, 200, superxr.importProperties((await readBody(req)).csv));
+    if (req.method === 'POST' && pathname === '/api/superxr/need') return send(res, 200, superxr.addNeed(await readBody(req)));
+    if (req.method === 'POST' && pathname === '/api/superxr/status') { const b = await readBody(req); return send(res, 200, superxr.setStatus(b.id, b.status)); }
+    if (req.method === 'POST' && pathname === '/api/superxr/match') return send(res, 200, superxr.matchAll(await readBody(req)));
+    if (req.method === 'POST' && pathname === '/api/superxr/check-ad') return send(res, 200, { issues: superxr.fairHousingCheck((await readBody(req)).text) });
+    if (req.method === 'POST' && pathname === '/api/superxr/delete') {
+      const { kind, id, all } = await readBody(req);
+      if (all) superxr.clearData(); else superxr.deleteItem(kind, id);
+      return send(res, 200, { ok: true });
     }
     // ---- AdXR ----
     if (req.method === 'GET' && pathname === '/api/adxr/presets') {

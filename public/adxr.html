@@ -58,7 +58,7 @@
 </head>
 <body>
 <main>
-  <nav><a href="/">← QueryTrends X-Ray</a></nav>
+  <nav><a href="/">← QueryTrends X-Ray</a> · <a href="/superxr.html">AdSuperXR · Real Estate →</a></nav>
   <h1>Ad<span>XR</span></h1>
   <p class="sub">X-Ray a winning ad's structure → write your ad for your target lead in EN / ES / PT → test free → pay only for the winner.</p>
 
@@ -98,7 +98,7 @@
     <div class="grid" id="fields"></div>
     <div class="row" style="margin-top:12px">
       <label class="chk" style="flex:1 1 100%">Lead link (where people get the free offer)
-        <input id="link" type="text" style="width:100%" />
+        <input id="link" type="text" style="width:100%" placeholder="e.g. https://wa.me/1816XXXXXXX or your Messenger link" />
       </label>
     </div>
     <div class="row" style="margin-top:12px">
@@ -200,7 +200,8 @@ function showFields(lang) {
 document.querySelectorAll('#langTabs button').forEach((b) => b.addEventListener('click', () => showFields(b.dataset.l)));
 
 api('/api/adxr/presets').then((r) => {
-  target = JSON.parse(JSON.stringify(r.presets.querytrends));
+  const want = new URLSearchParams(location.search).get('preset');
+  target = JSON.parse(JSON.stringify(r.presets[want] || r.presets.querytrends));
   $('link').value = target.link; showFields('en');
   if (!r.polishAvailable) { $('polish').disabled = true; $('polishWrap').style.opacity = .5; $('polishWrap').title = 'Add ANTHROPIC_API_KEY to .env to enable (paid)'; }
 }).catch(() => say('genMsg', 'Server not reachable. Is the black window running?', 'err'));
