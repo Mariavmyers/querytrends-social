@@ -49,7 +49,7 @@ npm start                 # open http://localhost:3000
 No API key? It runs in **DRY RUN** mode: everything works, and it shows the exact JSON it *would* send to Blotato, without posting.
 
 ```bash
-npm test                  # 8 automated tests, no internet or key needed
+npm test                  # 13 automated tests, no internet or key needed
 ```
 
 ## MCP servers used, and why
