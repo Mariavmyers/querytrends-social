@@ -30,7 +30,14 @@ Found by reading logs, running tests, and clicking through the app in a headless
 **Symptom:** Found in a headless-browser screenshot: the "Where to post" picker sat below all 8 posts.
 **Fix:** Moved it to step 2, so you choose the account before the posts are written.
 
-## 7. `npm test` crashed on Node 22
+## 7. Facebook connected, but there was nowhere to post
+**Symptom:** Blotato showed the Facebook account as "Healthy," but publishing a test post to Facebook would have failed.
+**How I found it:** Listed the connected accounts through the Blotato MCP. The Facebook account came back with `"subaccounts": []`, meaning no Facebook Pages. Facebook only allows API posting to Pages, never to a personal profile.
+**Cause:** During the first connection, Facebook remembered an earlier permission choice and skipped the "choose your Pages" screen. A second check showed that the URL people thought was the Page (`facebook.com/QueryTrendsAi`) was actually a personal profile with a username; the real Page was a separate profile ("QueryTrends ai").
+**Fix:** Disconnected Facebook in Blotato, reconnected it, and ticked the real Page on Facebook's permission screen. Re-listed the accounts and confirmed the Page ID came back under the Facebook account, then published the test post to the Page successfully.
+**Support lesson:** "Connected" doesn't mean "postable." Check the account's Pages/subaccounts before debugging anything else, and confirm whether a link is a Page or a profile.
+
+## 8. `npm test` crashed on Node 22
 **Symptom:** `Cannot find module '.../test'`.
 **Cause:** `node --test test/` with a folder path isn't supported the way I expected.
 **Fix:** Changed it to `node --test`, which finds `*.test.js` files automatically. 8/8 tests pass.
