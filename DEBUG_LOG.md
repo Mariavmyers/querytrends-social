@@ -40,7 +40,9 @@ Found by reading logs, running tests, and clicking through the app in a headless
 ## 8. Each language posted on a different day (found while using the app)
 **Symptom:** After scheduling 12 posts (4 topics × English, Spanish, Portuguese), each day had only one language: English Nov 8–11, Spanish Nov 12–15, Portuguese Nov 16–19. Followers would see a topic in English and then the same tip in Spanish days later, which is confusing.
 **Cause:** The suggested date was based on each post's position in the list (`slot(i)`), and the list is grouped by language. So the day followed the list order, not the topic.
-**Fix:** The day now comes from the topic's position *within its language*, and each language gets its own hour: English 9 AM, Spanish 12 PM, Portuguese 3 PM. All three versions of a topic go out the same day. Verified in a headless browser: 4 topics → 4 days, 3 languages each.
+**Fix (two steps):**
+1. The day now comes from the topic's position *within its language*, not the list order. Verified in a headless browser: 4 topics → 4 days, 3 languages each.
+2. After using it, I decided the languages belong *together*: a new **"All languages in one post"** option (on by default) merges English 🇺🇸, Spanish 🇪🇸 and Portuguese 🇧🇷 into a single post per topic, with hashtags once at the end and a trilingual link comment. X/Threads/Bluesky get the English short version, since 280 characters can't fit three languages. Covered by a new automated test (9/9 passing).
 **Support lesson:** A bug isn't only a crash. "It works, but it's confusing for customers" is a real bug too.
 
 ## 9. `npm test` crashed on Node 22

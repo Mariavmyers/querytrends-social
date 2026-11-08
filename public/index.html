@@ -81,6 +81,7 @@
       <label class="chk"><input type="checkbox" name="lang" value="en" checked /> English</label>
       <label class="chk"><input type="checkbox" name="lang" value="es" /> Español</label>
       <label class="chk"><input type="checkbox" name="lang" value="pt" /> Português (BR)</label>
+      <label class="chk"><input type="checkbox" id="combine" checked /> All languages in one post</label>
       <label class="chk" id="polishWrap"><input type="checkbox" id="polish" /> Polish with Claude</label>
       <button id="writeBtn" type="button">Write posts</button>
     </div>
@@ -158,7 +159,7 @@ $('writeBtn').addEventListener('click', async () => {
   if (!langs.length) return say('postsMsg', 'Pick at least one language.', 'err');
   busy($('writeBtn'), true, 'Writing…'); say('postsMsg', '');
   try {
-    const { posts } = await api('/api/posts', { result: scanResult, langs, polish: $('polish').checked });
+    const { posts } = await api('/api/posts', { result: scanResult, langs, polish: $('polish').checked, combine: $('combine').checked });
     renderPosts(posts);
   } catch (err) { say('postsMsg', err.message, 'err'); }
   busy($('writeBtn'), false, 'Write posts');
@@ -178,7 +179,7 @@ function renderPosts(posts) {
     const msg = el('div', { class: 'msg' });
     btn.addEventListener('click', () => schedule(p, text, when, btn, msg));
     box.append(el('div', { class: 'post' },
-      el('div', { class: 'meta' }, el('span', { text: `${p.lang.toUpperCase()} · ${p.kind}${p.polished ? ' · polished' : ''}` }), el('span', { text: `${text.value.length} characters` })),
+      el('div', { class: 'meta' }, el('span', { text: `${p.lang.toUpperCase().replace(/\+/g, ' + ')} · ${p.kind}${p.polished ? ' · polished' : ''}` }), el('span', { text: `${text.value.length} characters` })),
       text, el('div', { class: 'comment', text: `First comment (Facebook) / last line (LinkedIn): ${p.firstComment}` }),
       el('div', { class: 'row' }, when, btn), msg));
   });

@@ -57,9 +57,9 @@ function safeEqual(a, b) {
 
 // One-call endpoint for n8n: scan -> write posts -> schedule them, spaced out.
 async function runAutopilot(body) {
-  const { url, langs = ['en'], accountId, platform, pageId, max = 3, spacingHours = 24, startTime, polish = false, link } = body;
+  const { url, langs = ['en'], accountId, platform, pageId, max = 3, spacingHours = 24, startTime, polish = false, link, combine = false } = body;
   const result = await scan(url);
-  const posts = await generatePosts(result, { langs, max, polish, link });
+  const posts = await generatePosts(result, { langs, max, polish, link, combine });
   const start = startTime ? new Date(startTime) : new Date(Date.now() + 60 * 60 * 1000);
   if (Number.isNaN(start.getTime())) throw new Error('startTime is not a valid date.');
   const scheduled = [];
@@ -89,9 +89,9 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, await scan(url));
     }
     if (req.method === 'POST' && pathname === '/api/posts') {
-      const { result, langs, max, polish, link } = await readBody(req);
+      const { result, langs, max, polish, link, combine } = await readBody(req);
       if (!result || !Array.isArray(result.findings)) throw Object.assign(new Error('Run a scan first.'), { status: 400 });
-      return send(res, 200, { posts: await generatePosts(result, { langs, max, polish, link }) });
+      return send(res, 200, { posts: await generatePosts(result, { langs, max, polish, link, combine }) });
     }
     if (req.method === 'GET' && pathname === '/api/accounts') {
       return send(res, 200, { dryRun: blotato.isDryRun(), accounts: await blotato.listAccounts() });

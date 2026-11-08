@@ -58,3 +58,15 @@ test('writes posts in all three languages', async () => {
   assert.deepStrictEqual([...new Set(posts.map((p) => p.lang))], ['en', 'es', 'pt']);
   assert.ok(posts.find((p) => p.lang === 'pt').text.includes('llms.txt'));
 });
+
+test('combine puts all languages of a topic in one post', async () => {
+  const result = { url: 'https://x.com/', score: 50, findings: [{ id: 'llms', severity: 'medium', title: 't', why: 'w', fix: 'f' }] };
+  const posts = await generatePosts(result, { langs: ['en', 'es', 'pt'], max: 1, combine: true });
+  assert.strictEqual(posts.length, 2); // summary + 1 finding
+  for (const p of posts) {
+    assert.ok(p.text.includes('🇺🇸') && p.text.includes('🇪🇸') && p.text.includes('🇧🇷'));
+    assert.strictEqual((p.text.match(/#SEO/g) || []).length, 1, 'hashtags only once');
+    assert.ok(p.text.length < 3000, 'fits LinkedIn');
+    assert.ok(p.shortText.length <= 280);
+  }
+});
