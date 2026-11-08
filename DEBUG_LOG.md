@@ -37,7 +37,13 @@ Found by reading logs, running tests, and clicking through the app in a headless
 **Fix:** Disconnected Facebook in Blotato, reconnected it, and ticked the real Page on Facebook's permission screen. Re-listed the accounts and confirmed the Page ID came back under the Facebook account, then published the test post to the Page successfully.
 **Support lesson:** "Connected" doesn't mean "postable." Check the account's Pages/subaccounts before debugging anything else, and confirm whether a link is a Page or a profile.
 
-## 8. `npm test` crashed on Node 22
+## 8. Each language posted on a different day (found while using the app)
+**Symptom:** After scheduling 12 posts (4 topics × English, Spanish, Portuguese), each day had only one language: English Nov 8–11, Spanish Nov 12–15, Portuguese Nov 16–19. Followers would see a topic in English and then the same tip in Spanish days later, which is confusing.
+**Cause:** The suggested date was based on each post's position in the list (`slot(i)`), and the list is grouped by language. So the day followed the list order, not the topic.
+**Fix:** The day now comes from the topic's position *within its language*, and each language gets its own hour: English 9 AM, Spanish 12 PM, Portuguese 3 PM. All three versions of a topic go out the same day. Verified in a headless browser: 4 topics → 4 days, 3 languages each.
+**Support lesson:** A bug isn't only a crash. "It works, but it's confusing for customers" is a real bug too.
+
+## 9. `npm test` crashed on Node 22
 **Symptom:** `Cannot find module '.../test'`.
 **Cause:** `node --test test/` with a folder path isn't supported the way I expected.
 **Fix:** Changed it to `node --test`, which finds `*.test.js` files automatically. 8/8 tests pass.

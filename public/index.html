@@ -113,8 +113,11 @@ function say(id, text, kind = '') { const m = $(id); m.textContent = text; m.cla
 function busy(btn, on, label) { btn.disabled = on; if (label) btn.textContent = label; }
 
 // Default schedule: tomorrow 9:00 local, then one per day.
-function slot(i) {
-  const d = new Date(); d.setDate(d.getDate() + 1 + i); d.setHours(9, 0, 0, 0);
+// Same topic = same day in every language, at different hours,
+// so each day's audience sees one topic in their own language.
+const LANG_HOUR = { en: 9, es: 12, pt: 15 };
+function slot(dayIndex, lang) {
+  const d = new Date(); d.setDate(d.getDate() + 1 + dayIndex); d.setHours(LANG_HOUR[lang] ?? 9, 0, 0, 0);
   const pad = (x) => String(x).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
@@ -163,9 +166,14 @@ $('writeBtn').addEventListener('click', async () => {
 
 function renderPosts(posts) {
   const box = $('posts'); box.replaceChildren();
-  posts.forEach((p, i) => {
+  // Bug fix: dates used to follow list order (all English, then all Spanish, then all
+  // Portuguese), so each language landed on different days. Now the day comes from the
+  // topic's position within its language, so all 3 versions of a topic share one day.
+  const topicIndex = {};
+  posts.forEach((p) => {
+    const day = (topicIndex[p.lang] = (topicIndex[p.lang] ?? -1) + 1);
     const text = el('textarea'); text.value = p.text;
-    const when = el('input', { type: 'datetime-local' }); when.value = slot(i);
+    const when = el('input', { type: 'datetime-local' }); when.value = slot(day, p.lang);
     const btn = el('button', { type: 'button', text: 'Schedule this post' });
     const msg = el('div', { class: 'msg' });
     btn.addEventListener('click', () => schedule(p, text, when, btn, msg));
