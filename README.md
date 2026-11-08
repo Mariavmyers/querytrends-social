@@ -13,6 +13,16 @@ Built by **Maria Myers** ([QueryTrends.ai](https://querytrends.ai) · MainEntry 
 3. **Schedule.** Pick a connected Blotato account (Facebook Page, LinkedIn, X, Threads, Bluesky), set a date per post, and send. On Facebook the link goes in the **first comment**, because posts with outside links get less reach.
 4. **Automate.** An included n8n workflow runs the whole thing every Monday.
 
+## AdXR: ads built from winning ads (open `/adxr.html`)
+
+Spend less on ads by starting from structures that already work:
+
+1. **Find a winner** in the free, official ad libraries (Meta, TikTok Top Ads, LinkedIn). Ads running 30+ days are usually profitable.
+2. **X-Ray its structure**: hook type → pain → proof → offer → call to action, length, urgency. **Structure only, never the words.**
+3. **Your target lead**: who, where, pain, result, free offer, proof, in English, Spanish and Portuguese (pre-filled for QueryTrends leads).
+4. **Write 3 versions**: A copies the winner's hook; B and C test new hooks. Each gets an ad score (hook fits before "See more," link, call to action, length).
+5. **Test free, pay for the winner**: schedule each version as an organic post through Blotato, compare results in Blotato Analytics, then put ad money only behind the winner.
+
 ## Run it (5 minutes)
 
 Requires [Node.js 18+](https://nodejs.org). No packages to install.

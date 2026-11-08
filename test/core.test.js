@@ -70,3 +70,29 @@ test('combine puts all languages of a topic in one post', async () => {
     assert.ok(p.shortText.length <= 280);
   }
 });
+
+test('AdXR: X-Rays structure and writes ads in 3 languages without copying words', async () => {
+  const adxr = require('../lib/adxr');
+  const winner = 'Dentists in Kansas City: are you tired of empty chairs on Mondays?\nWe helped 120+ clinics fill their schedule in 30 days.\nGet a free marketing audit this week. Only 5 spots left.\nBook your call now 👇 link below';
+  const { blueprint } = adxr.analyzeAd(winner, { daysRunning: 45 });
+  assert.deepStrictEqual(blueprint.order, ['hook', 'proof', 'offer', 'cta']);
+  const target = JSON.parse(JSON.stringify(adxr.PRESETS.querytrends));
+  target.en.proof = '47 local websites checked';
+  const { ads, skipped } = await adxr.generateAds(blueprint, target, { langs: ['en', 'es', 'pt'], count: 3 });
+  assert.strictEqual(skipped.length, 0);
+  assert.strictEqual(ads.length, 9);
+  for (const a of ads) {
+    assert.ok(!/clinics|empty chairs|Mondays/i.test(a.text), 'never copies the winner\'s words');
+    assert.ok(a.text.includes('https://querytrends.ai/free-snapshot'));
+    assert.ok(a.text.split('\n')[0].length <= 125);
+  }
+  assert.strictEqual(new Set(ads.filter((a) => a.lang === 'en').map((a) => a.hookType)).size, 3, '3 different hooks to test');
+});
+
+test('AdXR: skips a language whose target fields are empty', async () => {
+  const adxr = require('../lib/adxr');
+  const { blueprint } = adxr.analyzeAd('Tired of slow sales? Get a free audit today. Click the link below.');
+  const { ads, skipped } = await adxr.generateAds(blueprint, { en: { audience: 'gyms', pain: 'members quit', offer: 'free audit' } }, { langs: ['en', 'es'] });
+  assert.ok(ads.length > 0 && ads.every((a) => a.lang === 'en'));
+  assert.deepStrictEqual(skipped.map((s) => s.lang), ['es']);
+});

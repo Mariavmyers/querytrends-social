@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AdXR · QueryTrends</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --panel: #ffffff; --ink: #1c1b19; --muted: #6b675f; --line: #e3dfd5;
+    --accent: #0f6e5c; --accent-ink: #ffffff; --gold: #a8790f; --bad: #b42318; --ok: #067647;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121211; --panel: #1b1b19; --ink: #f1efe9; --muted: #a29d93; --line: #2e2d2a; --accent: #3fb59c; --accent-ink: #0c1f1b; --gold: #e0b34a; --bad: #f97066; --ok: #47cd89; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 28px 16px 80px; }
+  nav { font-size: 14px; margin-bottom: 14px; }
+  nav a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  h1 { font-size: 30px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  h1 span { color: var(--gold); }
+  .sub { color: var(--muted); margin: 0 0 6px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-top: 18px; }
+  section h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 6px; }
+  .hint { font-size: 13.5px; color: var(--muted); margin: 0 0 12px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  input[type=text], input[type=number], input[type=datetime-local], select, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; }
+  input[type=text] { flex: 1 1 220px; min-width: 0; }
+  textarea { width: 100%; min-height: 150px; resize: vertical; font-size: 14px; }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 15px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  button:disabled { opacity: .5; cursor: wait; }
+  label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .grid label { font-size: 12.5px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+  .grid input[type=text], label.chk input[type=text] { flex: none; width: 100%; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .tabs button { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 6px 12px; }
+  .tabs button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .blueprint { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .pill { font: 12px var(--mono); padding: 4px 10px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); }
+  .pill.hook { border-color: var(--gold); color: var(--gold); }
+  ul.why { margin: 6px 0 0; padding-left: 18px; font-size: 14px; }
+  .ad { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 14px 0; }
+  .ad .meta { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font: 12px var(--mono); color: var(--muted); margin-bottom: 8px; }
+  .score { font-weight: 700; }
+  .score.good { color: var(--ok); } .score.mid { color: var(--gold); } .score.low { color: var(--bad); }
+  ul.checks { list-style: none; margin: 6px 0 10px; padding: 0; font-size: 13px; }
+  ul.checks li.no { color: var(--bad); } ul.checks li.yes { color: var(--ok); }
+  .msg { font-size: 14px; margin-top: 8px; }
+  .msg.err { color: var(--bad); } .msg.ok { color: var(--ok); }
+  .plan { font-size: 14px; line-height: 1.6; }
+  .plan b { color: var(--accent); }
+  .hidden { display: none; }
+  a.lnk { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <nav><a href="/">← QueryTrends X-Ray</a></nav>
+  <h1>Ad<span>XR</span></h1>
+  <p class="sub">X-Ray a winning ad's structure → write your ad for your target lead in EN / ES / PT → test free → pay only for the winner.</p>
+
+  <section>
+    <h2>1 · Find a winning ad</h2>
+    <p class="hint">Ads that have run <b>30+ days</b> are usually profitable: advertisers stop paying for ads that don't work. These are free, official ad libraries.</p>
+    <div class="row">
+      <input id="kw" type="text" placeholder="keyword or competitor, e.g. marketing agency, dentist, SEO" />
+      <button class="ghost" id="findBtn" type="button">Open ad libraries</button>
+    </div>
+    <div id="findLinks" class="msg"></div>
+  </section>
+
+  <section>
+    <h2>2 · X-Ray its structure</h2>
+    <p class="hint">Paste the ad's text. AdXR copies the <b>structure only</b>, never the words.</p>
+    <textarea id="adText" placeholder="Paste the winning ad's text here…"></textarea>
+    <div class="row" style="margin-top:10px">
+      <label class="chk">Days running <input id="days" type="number" min="0" style="width:90px" placeholder="45" /></label>
+      <button id="xrayBtn" type="button">X-Ray this ad</button>
+    </div>
+    <div id="xrayMsg" class="msg"></div>
+    <div id="xray" class="hidden">
+      <div class="blueprint" id="bp"></div>
+      <ul class="why" id="why"></ul>
+    </div>
+  </section>
+
+  <section id="targetSec" class="hidden">
+    <h2>3 · Your target lead</h2>
+    <p class="hint">Who should this ad bring you? Pre-filled for QueryTrends leads. Edit each language so the ad reads naturally.</p>
+    <div class="tabs" id="langTabs">
+      <button type="button" data-l="en" class="on">English</button>
+      <button type="button" data-l="es">Español</button>
+      <button type="button" data-l="pt">Português</button>
+    </div>
+    <div class="grid" id="fields"></div>
+    <div class="row" style="margin-top:12px">
+      <label class="chk" style="flex:1 1 100%">Lead link (where people get the free offer)
+        <input id="link" type="text" style="width:100%" />
+      </label>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <label class="chk"><input type="checkbox" name="lang" value="en" checked /> English</label>
+      <label class="chk"><input type="checkbox" name="lang" value="es" checked /> Español</label>
+      <label class="chk"><input type="checkbox" name="lang" value="pt" checked /> Português</label>
+      <label class="chk"><input type="checkbox" id="combine" checked /> All languages in one post</label>
+      <label class="chk" id="polishWrap"><input type="checkbox" id="polish" /> Polish with Claude</label>
+      <button id="genBtn" type="button">Write my ads</button>
+    </div>
+    <div id="genMsg" class="msg"></div>
+  </section>
+
+  <section id="adsSec" class="hidden">
+    <h2>4 · Test free, then pay for the winner</h2>
+    <p class="plan">Each version uses a <b>different hook</b>. Version A copies the winner's hook; B and C test new ones.<br>
+      <b>Step 1:</b> post each version free (one per day, below). <b>Step 2:</b> after 48 hours, compare comments, clicks and shares in Blotato → Analytics.
+      <b>Step 3:</b> put ad money only behind the winner. Start small and raise it only if leads come in.</p>
+    <div class="row">
+      <select id="account"><option value="">Loading accounts…</option></select>
+      <select id="page" class="hidden"></select>
+    </div>
+    <div id="accountMsg" class="msg"></div>
+    <div id="ads"></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const LANG_FLAG = { en: '🇺🇸', es: '🇪🇸', pt: '🇧🇷' };
+const FIELDS = [
+  ['audience', 'Who (audience)'], ['city', 'Where (city)'], ['pain', 'Their pain'],
+  ['outcome', 'Result they want'], ['offer', 'Your free offer'], ['proof', 'Proof (optional)'],
+];
+let blueprint = null, target = null, current = 'en', accounts = [];
+
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {});
+  const data = await res.json().catch(() => ({ error: 'Unexpected response (' + res.status + ').' }));
+  if (!res.ok) throw new Error(data.error || 'Error ' + res.status);
+  return data;
+}
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v); }
+  kids.flat().forEach((k) => k != null && n.append(k));
+  return n;
+}
+function say(id, text, kind = '') { $(id).textContent = text; $(id).className = 'msg ' + kind; }
+function dayAt(dayIndex, hour) {
+  const d = new Date(); d.setDate(d.getDate() + 1 + dayIndex); d.setHours(hour, 0, 0, 0);
+  const p = (x) => String(x).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+
+// ---- Step 1: free ad libraries ----
+$('findBtn').addEventListener('click', async () => {
+  try {
+    const l = await api('/api/adxr/find', { keyword: $('kw').value });
+    const box = $('findLinks'); box.replaceChildren();
+    box.append(el('a', { class: 'lnk', href: l.metaAdLibrary, target: '_blank', rel: 'noopener', text: 'Meta Ad Library (Facebook + Instagram) ↗' }), ' · ',
+      el('a', { class: 'lnk', href: l.tiktokTopAds, target: '_blank', rel: 'noopener', text: 'TikTok Top Ads ↗' }), ' · ',
+      el('a', { class: 'lnk', href: l.linkedinAdLibrary, target: '_blank', rel: 'noopener', text: 'LinkedIn Ad Library ↗' }),
+      el('div', { class: 'hint', style: 'margin-top:6px', text: 'Tip: open an ad whose "Started running on" date is 30+ days ago, copy its text, and paste it in step 2.' }));
+  } catch (e) { say('findLinks', e.message, 'err'); }
+});
+
+// ---- Step 2: X-Ray ----
+$('xrayBtn').addEventListener('click', async () => {
+  $('xrayBtn').disabled = true; say('xrayMsg', '');
+  try {
+    const r = await api('/api/adxr/analyze', { text: $('adText').value, daysRunning: $('days').value });
+    blueprint = r.blueprint;
+    const bp = $('bp'); bp.replaceChildren();
+    blueprint.order.forEach((s, i) => {
+      if (i) bp.append(el('span', { class: 'pill', text: '→' }));
+      bp.append(el('span', { class: 'pill' + (s === 'hook' ? ' hook' : ''), text: s === 'hook' ? 'Hook (' + blueprint.hookType + ')' : ({ pain: 'Pain', proof: 'Proof', offer: 'Offer', cta: 'Call to action' })[s] }));
+    });
+    $('why').replaceChildren(...r.why.map((w) => el('li', { text: w })));
+    $('xray').classList.remove('hidden'); $('targetSec').classList.remove('hidden');
+  } catch (e) { say('xrayMsg', e.message, 'err'); }
+  $('xrayBtn').disabled = false;
+});
+
+// ---- Step 3: target lead ----
+function saveFields() {
+  if (!target) return;
+  FIELDS.forEach(([k]) => { const i = $('f_' + k); if (i) target[current][k] = i.value; });
+  target.link = $('link').value;
+}
+function showFields(lang) {
+  saveFields(); current = lang;
+  document.querySelectorAll('#langTabs button').forEach((b) => b.classList.toggle('on', b.dataset.l === lang));
+  $('fields').replaceChildren(...FIELDS.map(([k, label]) => {
+    const i = el('input', { type: 'text', id: 'f_' + k }); i.value = (target[lang] || {})[k] || '';
+    return el('label', {}, label, i);
+  }));
+}
+document.querySelectorAll('#langTabs button').forEach((b) => b.addEventListener('click', () => showFields(b.dataset.l)));
+
+api('/api/adxr/presets').then((r) => {
+  target = JSON.parse(JSON.stringify(r.presets.querytrends));
+  $('link').value = target.link; showFields('en');
+  if (!r.polishAvailable) { $('polish').disabled = true; $('polishWrap').style.opacity = .5; $('polishWrap').title = 'Add ANTHROPIC_API_KEY to .env to enable (paid)'; }
+}).catch(() => say('genMsg', 'Server not reachable. Is the black window running?', 'err'));
+
+// ---- Step 4: write + schedule ----
+function combineByVariant(ads) {
+  const out = {};
+  ads.forEach((a) => { (out[a.variant] = out[a.variant] || []).push(a); });
+  return Object.entries(out).map(([variant, group]) => ({
+    variant, lang: group.map((g) => g.lang).join('+'), hookType: group[0].hookType,
+    text: group.map((g) => LANG_FLAG[g.lang] + '\n' + g.text).join('\n\n— — —\n\n'),
+    shortText: (group.find((g) => g.lang === 'en') || group[0]).shortText,
+    score: Math.min(...group.map((g) => g.score)), checks: group[0].checks,
+  }));
+}
+
+$('genBtn').addEventListener('click', async () => {
+  saveFields();
+  const langs = [...document.querySelectorAll('input[name=lang]:checked')].map((c) => c.value);
+  $('genBtn').disabled = true; say('genMsg', 'Writing…');
+  try {
+    const r = await api('/api/adxr/generate', { blueprint, target, langs, count: 3, polish: $('polish').checked });
+    const skipped = r.skipped.map((s) => s.lang.toUpperCase() + ' (fill in: ' + s.missing.join(', ') + ')');
+    say('genMsg', skipped.length ? 'Skipped ' + skipped.join('; ') : '', skipped.length ? 'err' : '');
+    const list = $('combine').checked && langs.length > 1 ? combineByVariant(r.ads) : r.ads;
+    renderAds(list);
+    $('adsSec').classList.remove('hidden');
+    if (!accounts.length) loadAccounts();
+    $('adsSec').scrollIntoView({ behavior: 'smooth' });
+  } catch (e) { say('genMsg', e.message, 'err'); }
+  $('genBtn').disabled = false;
+});
+
+function renderAds(list) {
+  const box = $('ads'); box.replaceChildren();
+  const letters = [...new Set(list.map((a) => a.variant))];
+  list.forEach((a) => {
+    const day = letters.indexOf(a.variant);
+    const t = el('textarea'); t.value = a.text;
+    const when = el('input', { type: 'datetime-local' }); when.value = dayAt(day, 9);
+    const btn = el('button', { type: 'button', text: 'Schedule free test post' });
+    const msg = el('div', { class: 'msg' });
+    btn.addEventListener('click', () => schedule(a, t, when, btn, msg));
+    const cls = a.score >= 80 ? 'good' : a.score >= 60 ? 'mid' : 'low';
+    box.append(el('div', { class: 'ad' },
+      el('div', { class: 'meta' }, el('span', { text: 'Version ' + a.variant + ' · ' + a.lang.toUpperCase().replace(/\+/g, ' + ') + ' · ' + a.hookType + ' hook' }), el('span', { class: 'score ' + cls, text: 'Ad score ' + a.score + '%' })),
+      t,
+      el('ul', { class: 'checks' }, a.checks.map((c) => el('li', { class: c.ok ? 'yes' : 'no', text: (c.ok ? '✓ ' : '✗ ') + c.label }))),
+      el('div', { class: 'row' }, when, btn), msg));
+  });
+}
+
+async function loadAccounts() {
+  try {
+    const data = await api('/api/accounts'); accounts = data.accounts;
+    const sel = $('account');
+    sel.replaceChildren(el('option', { value: '', text: accounts.length ? 'Where to test (choose an account)' : 'No accounts — connect them at my.blotato.com' }));
+    accounts.forEach((a) => sel.append(el('option', { value: a.id, text: a.platform + ' · ' + a.name })));
+  } catch (e) { say('accountMsg', e.message, 'err'); }
+}
+$('account').addEventListener('change', async () => {
+  const acc = accounts.find((a) => a.id === $('account').value);
+  const page = $('page'); page.classList.add('hidden'); page.replaceChildren(); say('accountMsg', '');
+  if (!acc || !['facebook', 'linkedin'].includes(acc.platform)) return;
+  try {
+    const { pages } = await api('/api/accounts/' + encodeURIComponent(acc.id) + '/pages');
+    page.append(el('option', { value: '', text: acc.platform === 'facebook' ? 'Choose a Facebook Page (required)' : 'Personal profile (or choose a Company Page)' }));
+    pages.forEach((p) => page.append(el('option', { value: p.id, text: p.name })));
+    page.classList.remove('hidden');
+  } catch (e) { say('accountMsg', e.message, 'err'); }
+});
+
+async function schedule(ad, textEl, whenEl, btn, msg) {
+  const acc = accounts.find((a) => a.id === $('account').value);
+  if (!acc) { msg.textContent = 'Choose where to test first (top of this section).'; msg.className = 'msg err'; return; }
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    const text = textEl.value;
+    const r = await api('/api/schedule', {
+      accountId: acc.id, platform: acc.platform, pageId: $('page').value || undefined,
+      post: { text, shortText: text === ad.text ? ad.shortText : text.slice(0, 280) },
+      scheduledTime: whenEl.value ? new Date(whenEl.value).toISOString() : undefined,
+    });
+    msg.textContent = r.dryRun ? 'Dry run OK (nothing posted). ID ' + r.postSubmissionId : 'Scheduled ✓ ' + (r.scheduledTime ? new Date(r.scheduledTime).toLocaleString() : 'publishing now');
+    msg.className = 'msg ok'; btn.textContent = 'Scheduled ✓';
+  } catch (e) { msg.textContent = e.message; msg.className = 'msg err'; btn.disabled = false; btn.textContent = 'Schedule free test post'; }
+}
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ const log = require('./lib/log');
 const { scan } = require('./lib/scanner');
 const { generatePosts } = require('./lib/posts');
 const blotato = require('./lib/blotato');
+const adxr = require('./lib/adxr');
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const HOST = process.env.HOST || '127.0.0.1';
@@ -92,6 +93,22 @@ const server = http.createServer(async (req, res) => {
       const { result, langs, max, polish, link, combine } = await readBody(req);
       if (!result || !Array.isArray(result.findings)) throw Object.assign(new Error('Run a scan first.'), { status: 400 });
       return send(res, 200, { posts: await generatePosts(result, { langs, max, polish, link, combine }) });
+    }
+    // ---- AdXR ----
+    if (req.method === 'GET' && pathname === '/api/adxr/presets') {
+      return send(res, 200, { presets: adxr.PRESETS, polishAvailable: Boolean(env.ANTHROPIC_API_KEY) });
+    }
+    if (req.method === 'POST' && pathname === '/api/adxr/find') {
+      const { keyword, country } = await readBody(req);
+      return send(res, 200, adxr.findWinnersLinks(keyword, country));
+    }
+    if (req.method === 'POST' && pathname === '/api/adxr/analyze') {
+      const { text, daysRunning } = await readBody(req);
+      return send(res, 200, adxr.analyzeAd(text, { daysRunning }));
+    }
+    if (req.method === 'POST' && pathname === '/api/adxr/generate') {
+      const { blueprint, target, langs, count, polish } = await readBody(req);
+      return send(res, 200, await adxr.generateAds(blueprint, target, { langs, count, polish }));
     }
     if (req.method === 'GET' && pathname === '/api/accounts') {
       return send(res, 200, { dryRun: blotato.isDryRun(), accounts: await blotato.listAccounts() });
