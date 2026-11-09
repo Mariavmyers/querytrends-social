@@ -55,6 +55,7 @@
   .msg { font-size: 14px; margin-top: 8px; }
   .msg.err { color: var(--bad); } .msg.ok { color: var(--ok); }
   .flag { background: color-mix(in srgb, var(--gold) 12%, transparent); border-left: 3px solid var(--gold); padding: 10px 12px; border-radius: 0 10px 10px 0; font-size: 14px; }
+.who{font-weight:700;margin-bottom:2px}.who a{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -218,7 +219,8 @@ $('matchBtn').addEventListener('click', async () => {
       el('div', { class: 'muted', text: [r.property.area, money(r.property.price), (r.property.beds ?? '—') + ' bd / ' + (r.property.baths ?? '—') + ' ba'].join(' · ') }),
       r.buyers.length ? r.buyers.map((b) => el('div', { class: 'buyer' },
         el('div', { class: 'score ' + (b.score >= 80 ? 'good' : 'mid'), text: b.score + '%' }),
-        el('div', {}, el('b', { text: need(b.lead) }), el('span', { class: 'tag' + (b.shareable ? ' shared' : ''), text: b.shareable ? 'agreed to intro' : (b.lead.status || 'found') }),
+        el('div', {}, b.lead.handle ? el('div', { class: 'who' }, b.lead.link ? el('a', { href: b.lead.link, target: '_blank', rel: 'noopener', text: '👤 ' + b.lead.handle }) : '👤 ' + b.lead.handle) : null,
+          el('b', { text: need(b.lead) }), el('span', { class: 'tag' + (b.shareable ? ' shared' : ''), text: b.shareable ? 'agreed to intro' : (b.lead.status || 'found') }),
           el('div', { class: 'muted', text: '✓ ' + b.reasons.join(' · ') }),
           b.misses.length ? el('div', { class: 'muted', text: '✗ ' + b.misses.join(' · ') }) : null))) : el('div', { class: 'muted', text: 'No matches at this level yet.' })));
   });
@@ -244,7 +246,7 @@ $('reportBtn').addEventListener('click', () => {
       const row = d.createElement('div'); row.className = 'b';
       row.append(h('span', b.score + '% ', 's'), h('span', 'Buyer ' + (i + 1) + ': ' + need(b.lead)));
       row.append(h('div', b.reasons.join(' · '), 'm'));
-      row.append(h('div', b.shareable ? 'Agreed to an introduction ✓' : 'Introduction available on request', 'm'));
+      row.append(h('div', b.shareable ? 'Agreed to an introduction ✓' + (b.lead.handle ? ' · ' + b.lead.handle : '') : 'Introduction available on request', 'm'));
       d.body.append(row);
     });
   });
